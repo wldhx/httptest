@@ -1,13 +1,17 @@
+#[macro_use] extern crate hyper;
 extern crate iron;
 extern crate router;
 extern crate rustc_serialize;
 
 use iron::prelude::*;
 use iron::status;
+use iron::headers::Host;
 use router::Router;
 use rustc_serialize::json;
 use std::io::Read;
 use std::sync::{Arc, Mutex};
+
+header! { (XRequestGuid, "X-Request-Guid") => [String] }
 
 #[derive(RustcEncodable, RustcDecodable)]
 struct Greeting {
@@ -21,6 +25,7 @@ fn main() {
     let mut router = Router::new();
 
     router.get("/", move |r: &mut Request| {
+        println!("{:?}", r.headers.get::<XRequestGuid>());
         hello_world(r, &greeting.lock().unwrap())
     }, "get");
 
